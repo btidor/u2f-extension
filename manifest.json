@@ -1,84 +1,85 @@
 {
-  "name": "CryptoTokenExtension",
-  "description": "CryptoToken Component Extension",
-  "version": "0.9.46",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq7zRobvA+AVlvNqkHSSVhh1sEWsHSqz4oR/XptkDe/Cz3+gW9ZGumZ20NCHjaac8j1iiesdigp8B1LJsd/2WWv2Dbnto4f8GrQ5MVphKyQ9WJHwejEHN2K4vzrTcwaXqv5BSTXwxlxS/mXCmXskTfryKTLuYrcHEWK8fCHb+0gvr8b/kvsi75A1aMmb6nUnFJvETmCkOCPNX5CHTdy634Ts/x0fLhRuPlahk63rdf7agxQv5viVjQFk+tbgv6aa9kdSd11Js/RZ9yZjrFgHOBWgP4jTBqud4+HUglrzu8qynFipyNRLCZsaxhm+NItTyNgesxLdxZcwOz56KD1Q4IQIDAQAB",
+  "name": "U2F Touch ID",
+  "version": "1.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAySGNIQJvDTqHzBVGgIuc+RZs7/h4FtjDm5Do/I2jfG739UqLwm5ck6bOKZn53ZacpllsRPIVy636ZoZE2QBQgDzZ73NsuotCa1EQODThlqxZc+TXYP5FK4Tx3RdwICh5PGps79rkVWnlSOXb6tyP5SE/zoAg3vs+ph5QqfTGv5CLUa8N5bOUJT7RNmUxDvVonfOtKUg+n6i55XxsEI1E0v0cFVdIogkpSv5Ry1OzFF+/H/i+bMdIi7OrNhEwNB/wJmrktL09nuAwk5cMYiJKIrmfWHlzuzBXpNmIGrNo+cnOSnAUCLUP+ppeDptlzuiEDt+2QvvmyUTUYuuiCYBHQQIDAQAB",
   "manifest_version": 2,
   "permissions": [
-    "hid",
-    "u2fDevices",
-    "usb",
-    "cryptotokenPrivate",
-    "externally_connectable.all_urls",
-    "tabs",
-    "https://*/*",
-    "http://*/*",
-    {
-      "usbDevices": [
-        {
-          "vendorId": 4176,
-          "productId": 529
-        }
-      ]
-    }
+    "nativeMessaging",
+    "tabs"
   ],
   "externally_connectable": {
-    "matches": [
-      "<all_urls>"
-    ],
     "ids": [
       "fjajfjhkeibgmiggdfehjplbhmfkialk"
     ],
     "accepts_tls_channel_id": true
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": ["u2f-content-script.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    "u2f-comms.js",
+    "u2f-comms.html",
+    "u2f-injected-script.js"
+  ],
   "background": {
     "persistent": false,
     "scripts": [
-      "util.js",
-      "b64.js",
-      "sha256.js",
-      "timer.js",
-      "countdown.js",
-      "countdowntimer.js",
-      "devicestatuscodes.js",
-      "approvedorigins.js",
-      "errorcodes.js",
-      "webrequest.js",
-      "messagetypes.js",
-      "factoryregistry.js",
-      "closeable.js",
-      "requesthelper.js",
-      "enroller.js",
-      "requestqueue.js",
-      "signer.js",
-      "origincheck.js",
-      "textfetcher.js",
-      "appid.js",
-      "watchdog.js",
-      "logging.js",
-      "webrequestsender.js",
-      "window-timer.js",
-      "cryptotokenorigincheck.js",
-      "cryptotokenapprovedorigins.js",
-      "gnubbydevice.js",
-      "hidgnubbydevice.js",
-      "usbgnubbydevice.js",
-      "gnubbies.js",
-      "gnubby.js",
-      "gnubby-u2f.js",
-      "gnubbyfactory.js",
-      "singlesigner.js",
-      "multiplesigner.js",
-      "generichelper.js",
-      "inherits.js",
-      "individualattest.js",
-      "devicefactoryregistry.js",
-      "usbhelper.js",
-      "usbenrollhandler.js",
-      "usbsignhandler.js",
-      "usbgnubbyfactory.js",
-      "googlecorpindividualattest.js",
-      "cryptotokenbackground.js"
+      "cryptotoken/util.js",
+      "cryptotoken/b64.js",
+      "cryptotoken/sha256.js",
+      "cryptotoken/timer.js",
+      "cryptotoken/countdown.js",
+      "cryptotoken/countdowntimer.js",
+      "cryptotoken/devicestatuscodes.js",
+      "cryptotoken/approvedorigins.js",
+      "cryptotoken/errorcodes.js",
+      "cryptotoken/webrequest.js",
+      "cryptotoken/messagetypes.js",
+      "cryptotoken/factoryregistry.js",
+      "cryptotoken/closeable.js",
+      "cryptotoken/requesthelper.js",
+      "cryptotoken/enroller.js",
+      "cryptotoken/requestqueue.js",
+      "cryptotoken/signer.js",
+      "cryptotoken/origincheck.js",
+      "cryptotoken/textfetcher.js",
+      "cryptotoken/appid.js",
+      "cryptotoken/watchdog.js",
+      "cryptotoken/logging.js",
+      "cryptotoken/webrequestsender.js",
+      "cryptotoken/window-timer.js",
+      "cryptotoken/cryptotokenorigincheck.js",
+      "cryptotoken/cryptotokenapprovedorigins.js",
+      "cryptotoken/gnubbydevice.js",
+      "cryptotoken/hidgnubbydevice.js",
+      "cryptotoken/usbgnubbydevice.js",
+      "cryptotoken/gnubbies.js",
+      "cryptotoken/gnubby.js",
+      "cryptotoken/gnubby-u2f.js",
+      "cryptotoken/gnubbyfactory.js",
+      "cryptotoken/singlesigner.js",
+      "cryptotoken/multiplesigner.js",
+      "cryptotoken/generichelper.js",
+      "cryptotoken/inherits.js",
+      "cryptotoken/individualattest.js",
+      "cryptotoken/devicefactoryregistry.js",
+      "cryptotoken/usbhelper.js",
+      "cryptotoken/usbenrollhandler.js",
+      "cryptotoken/usbsignhandler.js",
+      "cryptotoken/usbgnubbyfactory.js",
+      "cryptotoken/googlecorpindividualattest.js",
+      "cryptotoken-standalone/delegatinghelper.js",
+      "cryptotoken-standalone/etld.js",
+      "cryptotoken-standalone/etld_names_list.js",
+      "cryptotoken-standalone/etldorigincheck.js",
+      "cryptotoken-standalone/externalhelper.js"
     ]
   },
   "incognito": "split"
