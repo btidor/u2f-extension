@@ -83,5 +83,8 @@
       "background.js"
     ]
   },
+  "icons": {
+    "128": "icon.png"
+  },
   "incognito": "split"
 }
