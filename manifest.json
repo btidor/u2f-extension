@@ -79,7 +79,8 @@
       "cryptotoken-standalone/etld.js",
       "cryptotoken-standalone/etld_names_list.js",
       "cryptotoken-standalone/etldorigincheck.js",
-      "cryptotoken-standalone/externalhelper.js"
+      "cryptotoken-standalone/externalhelper.js",
+      "background.js"
     ]
   },
   "incognito": "split"

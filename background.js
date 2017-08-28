@@ -17,10 +17,18 @@ var HTTP_ORIGINS_ALLOWED = false;
 /** @const */
 var LOG_SAVER_EXTENSION_ID = 'fjajfjhkeibgmiggdfehjplbhmfkialk';
 
+/** @const */
+var NATIVE_MESSAGING_HOST = 'u2f.touchid';
+
 // Singleton tracking available devices.
 var gnubbies = new Gnubbies();
-HidGnubbyDevice.register(gnubbies);
-UsbGnubbyDevice.register(gnubbies);
+
+var REQUEST_HELPER = new DelegatingHelper();
+REQUEST_HELPER.addHelper(new ExternalHelper({
+  appId: NATIVE_MESSAGING_HOST,
+  sendMessage: chrome.runtime.sendNativeMessage,
+  defaultError: DeviceStatusCodes.TIMEOUT_STATUS
+}));
 
 var FACTORY_REGISTRY = (function() {
   var windowTimer = new WindowTimer();
@@ -28,7 +36,7 @@ var FACTORY_REGISTRY = (function() {
   return new FactoryRegistry(
       new XhrAppIdCheckerFactory(xhrTextFetcher),
       new CryptoTokenApprovedOrigin(), new CountdownTimerFactory(windowTimer),
-      new CryptoTokenOriginChecker(), new UsbHelper(), windowTimer,
+      new EtldOriginChecker(), REQUEST_HELPER, windowTimer,
       xhrTextFetcher);
 })();
 
@@ -173,3 +181,46 @@ function handleLogSaverMessage(request) {
 
 /** @private */
 var originalUtilFmt = null;
+
+/**
+ * Makes a MessageSender representing a web origin sending a message.
+ * @param {string} origin The origin sending the message.
+ * @return {!MessageSender} A MessageSender for the origin.
+ */
+function makeMessageSenderFromOrigin(origin) {
+  var sender;
+  // Make Closure happy by using the constructor if one's available, otherwise
+  // use a raw object.
+  if (window.hasOwnProperty('MessageSender')) {
+    sender = new MessageSender();
+  } else {
+    sender = {};
+  }
+  sender['url'] = origin;
+  sender['tlsChannelId'] = '';  // Can't deliver channelId over the iframe link
+  return /** @type {!MessageSender} */ (sender);
+}
+
+// Listen to connection events from our own web accessible scripts
+chrome.runtime.onConnect.addListener(function(port) {
+  var closeable;
+  port.onMessage.addListener(function(message) {
+    var sender =
+        makeMessageSenderFromOrigin(/** @type {string} */ (message.origin));
+    if (port.sender && port.sender.tab) {
+      sender.tab = port.sender.tab;
+    }
+    var request = message.request;
+    closeable = messageHandler(request,
+        sender,
+        function(response) {
+          response['requestId'] = request['requestId'];
+          port.postMessage(response);
+        });
+  });
+  port.onDisconnect.addListener(function() {
+    if (closeable) {
+      closeable.close();
+    }
+  });
+});

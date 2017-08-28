@@ -42,6 +42,11 @@ ExternalHandler.prototype.run = function(cb) {
   var self = this;
   this.helperConfig_.sendMessage(this.helperConfig_.appId, this.request_,
       function(response) {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError);
+          return;
+        }
+
         if (self.closed_) {
           console.log(
               UTIL_fmt('got a response from external helper after close'));
