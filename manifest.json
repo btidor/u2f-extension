@@ -20,7 +20,7 @@
         "http://*/*"
       ],
       "js": ["u2f-content-script.js"],
-      "run_at": "document_start"
+      "run_at": "document_end"
     }
   ],
   "web_accessible_resources": [
