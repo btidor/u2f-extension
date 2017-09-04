@@ -4,6 +4,9 @@
   const OLD_EXTENSION_ID = 'kmendfapggjehodndflmmgagdbamhnfd';
   const NEW_EXTENSION_ID = 'jnhbfcokdhpfagldfpiaficnpnadkoma';
 
+  const oldRuntimePort = chrome.runtime.connect(OLD_EXTENSION_ID,
+    {'includeTlsChannelId': true});
+
   const getIframePort = function(callback) {
     // Create the iframe
     var iframeOrigin = 'chrome-extension://' + NEW_EXTENSION_ID;
@@ -30,8 +33,8 @@
     });
   };
 
-  const inject = function(port) {
-    // Multiplex requests and responses across the port.
+  const inject = function(newIframePort) {
+    // Multiplex requests and responses across the ports.
     var reqId = -1;
     var outstanding = {};
     const sendMessageWithCallback = function(message_, callback) {
@@ -42,29 +45,31 @@
       }
       message['requestId'] = reqId;
       reqId = reqId - 1;
-      port.postMessage(message);
+      oldRuntimePort.postMessage(message);
+      newIframePort.postMessage(message);
     }
 
-    port.addEventListener('message', function(message) {
-      console.warn(message);
-      const data = message.data;
+    const handleResponse = function(data) {
       const reqId = data['requestId'];
       if (!reqId || !outstanding[reqId]) {
-        console.error('[u2f-touchid] Unknown or missing requestId in response.');
+        // already handled
         return;
       }
       data['requestId'] = outstanding[reqId].originalId;
       const callback = outstanding[reqId].callback;
       delete outstanding[reqId];
       callback(data);
+    };
+
+    oldRuntimePort.onMessage.addListener(handleResponse);
+    newIframePort.addEventListener('message', function(message) {
+      handleResponse(message.data);
     });
 
     // Intercept calls to sendMessage(OLD_EXTENSION_ID, ...) and proxy them to
     // our extension.
     const sendMessage_ = chrome.runtime.sendMessage;
     chrome.runtime.sendMessage = function(...args) {
-      console.warn(["sendMessage(", ...args]);
-
       if (args.length >= 2 && args[0] == OLD_EXTENSION_ID) {
         const message = args[1];
         const callback = args.slice(-1)[0];
@@ -83,8 +88,6 @@
     // extension.
     const connect_ = chrome.runtime.connect;
     chrome.runtime.connect = function(...args) {
-      console.warn(["connect(", ...args]);
-
       if (args.length > 1 && args[0] == OLD_EXTENSION_ID) {
         var listeners = [];
         // TODO: use `prototype` instead?
