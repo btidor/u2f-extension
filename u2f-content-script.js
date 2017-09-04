@@ -2,6 +2,9 @@
 
 // Content scripts run in a separate context. In order to modify window.u2f, we
 // need to inject our code into the DOM. https://stackoverflow.com/a/9636008
+
+// TODO: try using the Tabs API to get our script to run even earlier
+
 var s = document.createElement('script');
 s.src = chrome.extension.getURL('u2f-injected-script.js');
 (document.head||document.documentElement).appendChild(s);

@@ -38,6 +38,7 @@
     var reqId = -1;
     var outstanding = {};
     const sendMessageWithCallback = function(message_, callback) {
+      console.warn(message_);
       var message = Object.assign({}, message_);
       outstanding[reqId] = {
         originalId: message['requestId'],
@@ -120,5 +121,11 @@
     };
   }
 
-  getIframePort(inject);
+  if (document.body) {
+    getIframePort(inject);
+  } else {
+    window.addEventListener('load', function() {
+      getIframePort(inject);
+    });
+  }
 }());
